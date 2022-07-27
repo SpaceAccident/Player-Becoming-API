@@ -1,9 +1,12 @@
 package space.accident.pbapi
 
 import cpw.mods.fml.common.Mod
-import cpw.mods.fml.common.SidedProxy
-import cpw.mods.fml.common.event.*
-import space.accident.pbapi.proxy.CommonProxy
+import cpw.mods.fml.common.event.FMLPreInitializationEvent
+import cpw.mods.fml.common.event.FMLServerStartedEvent
+import cpw.mods.fml.common.event.FMLServerStoppedEvent
+import space.accident.pbapi.config.Config
+import space.accident.pbapi.events.ServerEvents
+import space.accident.pbapi.extra.SaveManager
 
 @Mod(
     modid = MODID,
@@ -15,49 +18,22 @@ import space.accident.pbapi.proxy.CommonProxy
 )
 object PlayerBecomingApi {
 
-    @SidedProxy(clientSide = "$GROUPNAME.proxy.ClientProxy", serverSide = "$GROUPNAME.proxy.CommonProxy")
-    lateinit var proxy: CommonProxy
-
     @Mod.InstanceFactory
     fun instance() = PlayerBecomingApi
 
     @Mod.EventHandler
     fun preInit(event: FMLPreInitializationEvent) {
-        proxy.preInit(event)
-    }
-
-    @Mod.EventHandler
-    fun init(event: FMLInitializationEvent) {
-        proxy.init(event)
-    }
-
-    @Mod.EventHandler
-    fun postInit(event: FMLPostInitializationEvent) {
-        proxy.postInit(event)
-    }
-
-    @Mod.EventHandler
-    fun serverAboutToStart(event: FMLServerAboutToStartEvent) {
-        proxy.serverAboutToStart(event)
-    }
-
-    @Mod.EventHandler
-    fun serverStarting(event: FMLServerStartingEvent) {
-        proxy.serverStarting(event)
+        Config.createConfig(event.modConfigurationDirectory)
+        ServerEvents.register()
     }
 
     @Mod.EventHandler
     fun serverStarted(event: FMLServerStartedEvent) {
-        proxy.serverStarted(event)
-    }
-
-    @Mod.EventHandler
-    fun serverStopping(event: FMLServerStoppingEvent) {
-        proxy.serverStopping(event)
+        SaveManager.load()
     }
 
     @Mod.EventHandler
     fun serverStopped(event: FMLServerStoppedEvent) {
-        proxy.serverStopped(event)
+        SaveManager.saveAndStopWorld()
     }
 }
